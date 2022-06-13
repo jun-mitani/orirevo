@@ -72,6 +72,57 @@
       text-align: center;
       font-size: 150%;
     }
+
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: #f4f4f4;
+  margin: 5% auto;
+  width: 50%;
+  box-shadow: 0 5px 8px 0 rgba(0,0,0,0.2),0 7px 20px 0 rgba(0,0,0,0.17);
+  animation-name: modalopen;
+  animation-duration: 1s;
+}
+
+@keyframes modalopen {
+  from {opacity: 0}
+  to {opacity: 1}
+}
+
+.modal-header h1 {
+  margin: 1rem 0;
+}
+
+.modal-header {
+  background: lightblue;
+  padding: 3px 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modalClose {
+  font-size: 2rem;
+}
+
+.modalClose:hover {
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 10px 20px;
+  color: black;
+}
+
   </style>
 </head>
 
@@ -96,7 +147,7 @@
               <tr>
                 <td width="50%"><label for="divNum">Division Number&nbsp;&nbsp;&nbsp;</label></td>
                 <td>
-                  <select class="custom-select" id="divNum" onchange="divNumChange(this.value)">
+                  <select class="custom-select custom-select-sm" id="divNum" onchange="divNumChange(this.value)">
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
@@ -118,7 +169,6 @@
               </tr>
             </table>
           </div>
-
 
           <div class="form-group">
             <label id="modelTypeName">Model Type</label><br>
@@ -172,7 +222,7 @@
             }
           </style>
           <div id="div_flapsize">
-            <label for="flap_size">Flap Size</label>
+            <label for="flapSizeRange">Flap Size</label>
             <input id="flapSizeRange" type="range" min="1" max="400" step="1" value="20"
               oninput="flapSizeChange(this.value)" onchange="flapSizeChange(this.value)">
             <span id="FlapSize">20</span><br><br>
@@ -189,12 +239,18 @@
               onclick="buttonPressed('hide_hline');">
             <label class="custom-control-label" for="ck_hideHline">Hide almoust flat edges</label>
           </div>
-          <br>
+          <div id="div_hide_angle">
+            <label for="hideAngleRange">&nbsp;&nbsp;&nbsp;Hide Angle (deg.)</label>
+            <input id="hideAngleRange" type="range" min="1" max="90" step="1" value="25"
+              oninput="hideAngleChange(this.value)" onchange="hideAngleChange(this.value)">
+            <span id="HideAngle">25</span><br><br>
+          </div>
           <input class="btn btn-primary btn-sm" type="button" value="Smooth"
             onclick="buttonPressed('smooth');" />
           <input class="btn btn-primary btn-sm" type="button" value="Undo Smooth" id ="undo_smooth"
             onclick="buttonPressed('undo');" disabled/><br>
           <br>
+          <table width="100%"><tr><td width="50%">
           <div class="form-group">
             <select class="custom-select" id="export_data_type" onchange="export_data()">
               <option value="-1" selected>= Export Data =</option>
@@ -204,6 +260,7 @@
               <option value="orirevo">ORI-REVO data (.orirevo)</option>
             </select>
           </div>
+        </td><td>
 
           <div class="form-group">
             <select class="custom-select" id="load_example" onchange="loadExampleData(this.value)">
@@ -214,10 +271,13 @@
               <option value="wrapped_sphere">Wrapped Sphere</option>
               <option value="twisted_tower">Twisted Tower</option>
               <option value="bell">Bell</option>
+              <option value="gift_box">Gift Box</option>
               <option value="stacked_3_boxes">Stacked Three Boxes</option>
               <option value="whipped_cream">Whipped Cream</option>
             </select>
           </div>
+        </td>
+        </tr></table>
           <div class="custom-file">
             <input type="file" class="custom-file-input" id="orirevo_file" onChange="file_load(this)">
             <label class="custom-file-label" for="orirevo_file">= Load .orirevo File =</label>
@@ -229,13 +289,76 @@
             <input class="btn btn-danger btn-sm" type="button" value="Clear"
               onclick="buttonPressed('clear');" /><br><br>
           </div>             
-          
-            <div class="tips">
-                Operation Tips
+
+          <!-- ref https://tcd-theme.com/2021/08/javascript-modalwindow.html -->
+          <button id="modalOpen" class="btn btn-info btn-sm">About</button>
+          <br><br>
+          <div id="easyModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1>About ORI-REVO</h1>
+                <span class="modalClose">&times</span>
+              </div>
+              <div class="modal-body">
+                <img src="img/balls.jpg" align="right" width="300">
+                <h2>Operation Tips</h2>               
                 <ul>
-                  <li><b>Right Mouse Click</b> removes the last vertex.</li>
-                  <li><b>Dragging a vertex with [Ctrl] key</b> duplicates the vertex.</li>
+                  <li><b>Right Mouse Click</b> removes the clicked vertex (clicking on an empty space removes the last vertex).</li>
+                  <li><b>Dragging a vertex with [Ctrl]+Left Mouse</b> duplicates the vertex.</li>
                 </ul>
+
+                <h2>Information</h2>
+                <ul>
+                  <li>This software was developed by <a href="https://mitani.cs.tsukuba.ac.jp/ja/index.html" target="_blank">Jun Mitani</a>.</li>
+                  <li>This software is released under the MIT license on 8 June 2022.</li>
+                  <li>The source code is placed on <a href="https://github.com/jun-mitani/orirevo">the GitHub repository</a>.</li>
+                  <li>The algorithm used for generating 3D models is from the following paper:<br><span style="font-style : italic">Jun Mitani, "A Design Method for 3D Origami Based on Rotational Sweep", Computer-Aided Design and Applications, Vol.6, No.1, pp.69-79, 2009.</span><a href="http://mitani.cs.tsukuba.ac.jp/dl/CAD_2009_3d_origami_based_on_rotational_sweep_mitani.pdf">(PDF)</a></it></li>
+                  <li>You are free to use this software for any purpose, including personal use, workshop use, and commercial product development. 
+                    I would be very happy if you respect the developer, cite the software appropriately, and report on your use cases to mitani@cs.tsukuba.ac.jp</li>
+                  <li>The books written by the author of this software:<br><br>
+                    <a href="https://www.nippyo.co.jp/rittai_origami/" target="_blank"><img src="img/cover_rittai_origami2.jpg" height="160"></a>
+                    <a href="https://www.nippyo.co.jp/kyokusen_origami/" target="_blank"><img src="img/cover_CurvedFoldOrigamiDesign2.jpg" height="160"></a>
+                    <a href="https://mitani.cs.tsukuba.ac.jp/book/3d_origami_art/index.html" target="_blank"><img src="img/3d_origami_art_book.png" height="160"></a>
+                    <a href="https://mitani.cs.tsukuba.ac.jp/book/curved_folding/index.html" target="_blank"><img src="img/curved_folding_origami_book.jpg" height="160"></a>
+                  </li>
+                </ul>
+
+                <h3>External Libraries</h2>
+                <ul>
+                  <li> 3D rendering: <a target="_blank" href="https://threejs.org/">tree.js</a> </li>
+                  <li> UI and style: <a target="_blank" href="https://jquery.com/">jQuery</a>,
+                  <a target="_blank" href="https://getbootstrap.jp/">Bootstrap</a>,
+                  <a target="_blank" href="https://www.avantui.com/">avantui.js</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+<script>
+const buttonOpen = document.getElementById('modalOpen');
+const modal = document.getElementById('easyModal');
+const buttonClose = document.getElementsByClassName('modalClose')[0];
+
+// ボタンがクリックされた時
+buttonOpen.addEventListener('click', modalOpen);
+function modalOpen() {
+  modal.style.display = 'block';
+}
+
+// バツ印がクリックされた時
+buttonClose.addEventListener('click', modalClose);
+function modalClose() {
+  modal.style.display = 'none';
+}
+
+// モーダルコンテンツ以外がクリックされた時
+addEventListener('click', outsideClose);
+function outsideClose(e) {
+  if (e.target == modal) {
+    modal.style.display = 'none';
+  }
+}
+</script>
+            <div class="tips">
               <small>
                 <a href="https://www.instagram.com/mitani.jun/"> &gt;&gt;  Origami works of Jun Mitani on Instagram. </a><br>                
                 <span id="last_update"></span>
@@ -260,7 +383,7 @@
 <script src="orirevo_util.js"></script>
 
 <script>
-document.getElementById('last_update').innerHTML = "Last update June 8 2022";
+document.getElementById('last_update').innerHTML = "Last update June 13 2022";
 
 const COLOR_GRID = 'rgb(200, 200, 200)';
 const COLOR_AXIS = 'rgb(0, 0, 0)';
@@ -271,7 +394,6 @@ const COLOR_GLUE_AREA = 'rgb(240, 240, 240)';
 const POINT_SIZE = 3;
 const GRID_AREA_W = 500;
 const BACK_COLOR_3D_SCREEN = 0xf0f0f0;
-const ANGLE_FLAT_DEG_EPS = 15;
 
 const MODEL_TYPE_FLAP_CYLINDER = 0;
 const MODEL_TYPE_PRISM_CYLINDER = 1;
@@ -290,6 +412,7 @@ let pLineChanged = false;
 let modelDivNum = 6;
 let exportObjStr = "";
 let undoHistory = [];
+let hideAngleDeg = 25;
 
 function file_loaded(txt) {
   data = JSON.parse(txt);
@@ -312,7 +435,6 @@ function file_loaded(txt) {
   document.getElementById("divNum").value = modelDivNum;
   document.getElementById("flapSizeRange").value = flapSize;
   document.getElementById("FlapSize").innerText = flapSize;
-
 
   modelType = Number(data.modelType);
   let elements = document.getElementsByName('modelType');
@@ -343,7 +465,6 @@ function file_load(input) {
 }
 
 function loadExampleData(type) {
-
   switch(type) {
     case 'sphere8':
       pLine = [];
@@ -357,7 +478,6 @@ function loadExampleData(type) {
       document.getElementById("FlapSize").innerText = flapSize;
       document.getElementById("type_flap_cylinder").checked = true;
       modelTypeChange(modelType);
-
       break;
 
     case 'sphere16':
@@ -403,9 +523,13 @@ function loadExampleData(type) {
     case 'stacked_3_boxes':
       file_loaded('{"application":"orirevo","version":1,"vnum":8,"modelDivNum":8,"flapSize":29,"modelType":0,"xy":"-54.921875,-352.5,125,-343.75,125,-218.75,-187.5,-187.5,-187.5,-62.5,250,-31.25,250,93.75,-62.921875,102.5,"}');
       break;
-      case 'whipped_cream':
+    case 'whipped_cream':
       file_loaded('{"application":"orirevo","version":1,"vnum":16,"modelDivNum":6,"flapSize":29,"modelType":3,"xy":"0,-204.5,11.5390625,-198.5,24.943359375,-187.5,42.078125,-166.5,63.078125,-141.5,88.078125,-118.5,113.578125,-95.75,136.078125,-71.5,153.677734375,-46.9375,164.4765625,-23.25,167.095703125,0.53515625,160.15625,25.390625,143.447265625,48.3984375,116.7578125,66.640625,78.078125,81.5,210.078125,82.5,"}');
-    }
+      break;
+    case 'gift_box':
+      file_loaded('{"application":"orirevo","version":1,"vnum":4,"modelDivNum":10,"flapSize":200,"modelType":2,"xy":"0,93.75,156.25,93.75,218.75,-31.25,-72.140625,-102.5,"}');
+      break;
+  }
 
   undoHistory = [];
   document.getElementById('undo_smooth').disabled = true;
@@ -431,6 +555,14 @@ function flapSizeChange(i) {
   cpCanvas_draw();
 }
 
+function hideAngleChange(i) {
+  hideAngleDeg = Number(i);
+  document.getElementById("HideAngle").innerText = i;
+  buildModel();
+  render();
+  cpCanvas_draw();
+}
+
 // prevent pop-up menu
 let contextmenu_function = () => {	event.preventDefault(); }
 document.addEventListener('contextmenu', contextmenu_function);
@@ -444,7 +576,6 @@ mainCanvas.addEventListener('mousedown',  mainCanvas_onMouseDown, false);
 mainCanvas.addEventListener('mouseup',	mainCanvas_onMouseUp,	false);
 mainCanvas.addEventListener('mousemove',  mainCanvas_onMouseMove,  false);
 mainCanvas.addEventListener('mousewheel', mainCanvas_onMouseWheel, false);
-
 
 let mainCanvas_preMouseX;
 let mainCanvas_preMouseY;
@@ -479,7 +610,6 @@ function buttonPressed(s) {
     cpEdges = [];
     cpCanvas_draw();
     document.getElementById('undo_smooth').disabled = true;
-
   } else if (s == 'grid') {
     bShowGrid = document.getElementById("ck_grid").checked;      
     mainCanvas_draw();
@@ -501,6 +631,7 @@ function buttonPressed(s) {
     mainCanvas_draw();
   } else if (s == 'hide_hline') {
     bHideHline = document.getElementById("ck_hideHline").checked;    
+    document.getElementById("hideAngleRange").disabled = !bHideHline;
     // モデルの生成と展開図の生成を同時に行うので、このようになっている
     pLineChanged = true;
     mainCanvas_draw();
@@ -554,8 +685,8 @@ function smooth() {
     let ev = tmpVec[i + 1];
     let cv = new Vec2d(( sv.x + ev.x) / 2, (sv.y + ev.y) / 2);
 
-    pLine.push( new Vec2d(sv.x, sv.y));
-    pLine.push( new Vec2d(cv.x, cv.y));
+    pLine.push( new Vec2d(sv));
+    pLine.push( new Vec2d(cv));
   }
 
   pLine.push(new Vec2d(tmpVec[tmpVec.length - 1].x, tmpVec[tmpVec.length - 1].y));
@@ -571,19 +702,16 @@ function smooth() {
       tmpVec[j].x = pLine[j-1].x * 0.25 + pLine[j].x * 0.5 + pLine[j+1].x * 0.25;
       tmpVec[j].y = pLine[j-1].y * 0.25 + pLine[j].y * 0.5 + pLine[j+1].y * 0.25;
     } else {
-      tmpVec[j].x = pLine[j].x;
-      tmpVec[j].y = pLine[j].y;
+      tmpVec[j].set(pLine[j]);
     }
   }
             
   for(let j = 0; j < pLine.length; j++) {
-    pLine[j].x = tmpVec[j].x;
-    pLine[j].y = tmpVec[j].y;
+    pLine[j].set(tmpVec[j]);
   }  
 }
 
 function windowResized() {
-  console.log("resize");
   mainCanvas.width = wrapper1.getBoundingClientRect().width;
   mainCanvas.height = wrapper1.getBoundingClientRect().height;
   mainCanvas_draw();
@@ -1004,7 +1132,7 @@ function buildModel_Cylindrical_Flap() {
       let MVreverce = pLine[0].y < pLine[pLine.length - 1].y;
 
       for(let j = 1; j < pLine.length - 1; j++) {
-        if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * ANGLE_FLAT_DEG_EPS) continue;
+        if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg) continue;
         let bRidge = Vec2d.Cross(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j+1], pLine[j])) > 0;
 
         if (MVreverce) { bRidge = !bRidge; }
@@ -1085,12 +1213,28 @@ function buildModel_Cylindrical_Flap() {
     // 長さゼロの対処
     if(c0_len < 0.001) { faceV2[1] = faceV2[0]; }
     if(c1_len < 0.001) { faceV2[2] = faceV2[3]; }
-                
+
+    // 描画するエッジ
+    let edges = [[1,2], [3,0]]; // 左右
+    if(j == 0) {
+      edges.push([0,1]); // 上端
+    }
+
+    if( j != 0 ) {
+      let bHideH = (bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg);
+      if(!bHideH) {
+        edges.push([0,1]);
+      }
+    }
+
+    if(j == pLine.length -2) {
+      edges.push([2,3]); // 下端
+    }
+    
     for(let i = 0; i < N; i++) {
       let angle = 2 * Math.PI / N * i;
       fv = new Array(4);
  
-      let line_geom = new THREE.Geometry();
       for(let k = 0; k < 4; k++) {
         fv[k] = new Vec3d();
         // 回転させる
@@ -1101,9 +1245,16 @@ function buildModel_Cylindrical_Flap() {
 
         geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
         exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y));
       }
-      line_geom.vertices.push( new THREE.Vector3(fv[0].x,  -fv[0].z, fv[0].y));
+
+      for (let e of edges ) {
+        let si = e[0];
+        let ei = e[1];
+        let line_geom = new THREE.Geometry();
+        line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+        line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
+        group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+      }
 
       let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
       let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
@@ -1111,7 +1262,6 @@ function buildModel_Cylindrical_Flap() {
       geometry.faces.push(face1);
       vIndex += 4;
 
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
     }
 
     // 裏側
@@ -1119,7 +1269,6 @@ function buildModel_Cylindrical_Flap() {
       let angle = 2 * Math.PI / N * i;
       fv2 = new Array(4);
         
-      let line_geom = new THREE.Geometry();
       for(let k = 0; k < 4; k++) {
         fv2[k] = new Vec3d();
         // 回転させる
@@ -1130,17 +1279,22 @@ function buildModel_Cylindrical_Flap() {
 
         geometry.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y ));
         exportObjStr += "v " + fv2[k].x + " " + (-fv2[k].z) + " " + fv2[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y));
       }
-      line_geom.vertices.push( new THREE.Vector3(fv2[0].x,  -fv2[0].z, fv2[0].y));
+
+      for (let e of edges ) {
+        let si = e[0];
+        let ei = e[1];
+        let line_geom = new THREE.Geometry();
+        line_geom.vertices.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
+        line_geom.vertices.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));
+        group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+      }
 
 	    let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
 	    let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
       geometry.faces.push(face0);
       geometry.faces.push(face1);
       vIndex += 4;
-        
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
     }
   }
 
@@ -1244,7 +1398,7 @@ function buildModel_Cylindrical_Prism() {
       if(j == 0 || !bHideHline) { continue; }
 
       // 横の折り線
-      if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * ANGLE_FLAT_DEG_EPS) continue;
+      if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg) continue;
 
       let v2 = pLine[j-1];
       let bRidge = Vec2d.Cross(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j+1], pLine[j])) > 0;
@@ -1330,11 +1484,11 @@ function buildModel_Cylindrical_Prism() {
     vVec.push(pB);
   }
 
-  let tmpFace = [];
   let vNumPerLayer = 5;
   for(let j = 0; j < vNum-1; j++) {
+    let tmpFace = [];
     for(let i = 0; i < vNumPerLayer-1; i++) {
-        	  
+       	  
   	  // 四角形のための頂点を準備
       let v = new Array(4);
       v[0] = new Vec3d(vVec[j*vNumPerLayer+i]);
@@ -1343,35 +1497,57 @@ function buildModel_Cylindrical_Prism() {
       v[3] = new Vec3d(vVec[j*vNumPerLayer+i+1]);
       tmpFace.push(v);
     }
-  }      
 
-  for(let vs of tmpFace) {
-    for(let i = 0; i < N; i++) {
-      let angle = 2 * Math.PI / N * i;
-      let fv = new Array(4);
+    // 描画するエッジ
+    let edges = [[0,1], [2,3]]; // 左右
+    if(j == 0) {
+      edges.push([3,0]); // 上端
+    }
+
+    if( j != 0 ) {
+      let bHideH = (bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg);
+      if(!bHideH) {
+        edges.push([3,0]);
+      }
+    }
+
+    if(j == pLine.length -2) {
+      edges.push([1,2]); // 下端
+    }
+
+
+    for(let vs of tmpFace) {
+      for(let i = 0; i < N; i++) {
+        let angle = 2 * Math.PI / N * i;
+        let fv = new Array(4);
       
-      let line_geom = new THREE.Geometry();
-      for(let k = 0; k < 4; k++) {
-        fv[k] = new Vec3d();
-        // 回転させる
-        fv[k].z = vs[k].z - centerY;
-        fv[k].x = vs[k].x * Math.cos(angle) - vs[k].y * Math.sin(angle);
-        fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
+        for(let k = 0; k < 4; k++) {
+          fv[k] = new Vec3d();
+          // 回転させる
+          fv[k].z = vs[k].z - centerY;
+          fv[k].x = vs[k].x * Math.cos(angle) - vs[k].y * Math.sin(angle);
+          fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
 
-        fv[k].scale(modelScale);
-        geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
-        exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y));
-      }                    
-      line_geom.vertices.push( new THREE.Vector3(fv[0].x,  -fv[0].z, fv[0].y));
+          fv[k].scale(modelScale);
+          geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+          exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
+        }                    
 
-      let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-      let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
-      vIndex += 4;
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
-      
+        for (let e of edges ) {
+          let si = e[0];
+          let ei = e[1];
+          let line_geom = new THREE.Geometry();
+          line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+          line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
+          group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+        }
+
+        let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
+        let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
+        geometry.faces.push(face0);
+        geometry.faces.push(face1);
+        vIndex += 4;
+      }
     }
   }
 
@@ -1502,7 +1678,7 @@ function buildModel_Disk_Flap() {
         let p = new Vec2d(px, py);
         preP.set(p);
                 
-       if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * ANGLE_FLAT_DEG_EPS) continue;
+       if(bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg) continue;
         
         let p0 = new Vec2d(p.x, p.y);
         let p1 = new Vec2d(p.x, py_up);
@@ -1574,12 +1750,24 @@ function buildModel_Disk_Flap() {
     faceV2[3].z = faceV[3].z;
     faceV2[3].x = faceV[3].x * Math.cos(ang) - faceV[3].y * Math.sin(ang);
     faceV2[3].y = faceV[3].x * Math.sin(ang) + faceV[3].y * Math.cos(ang);
-            
+
+    // 描画するエッジ
+    let edges = [[1,2], [3,0]]; // 左右
+
+    if( j != pLine.length -1 ) {
+      let bHideH = (bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg);
+      if(!bHideH) {
+        edges.push([2,3]);
+      }
+    }
+
+    if(j == pLine.length -1) {
+      edges.push([2,3]); // 下端
+    }
+
     for(let i = 0; i < N; i++) {
       let angle = 2 * Math.PI / N * i;
       let fv = new Array(4);
-
-      let line_geom = new THREE.Geometry();
 
       for(let k = 0; k < 4; k++) {
         fv[k] = new Vec3d();
@@ -1591,19 +1779,22 @@ function buildModel_Disk_Flap() {
 
         geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
         exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y));
-
       }                    
-      line_geom.vertices.push( new THREE.Vector3(fv[0].x,  -fv[0].z, fv[0].y));
+
+      for (let e of edges ) {
+        let si = e[0];
+        let ei = e[1];
+        let line_geom = new THREE.Geometry();
+        line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+        line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
+        group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+      }
 
       let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
       let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
       geometry.faces.push(face0);
       geometry.faces.push(face1);
       vIndex += 4;
-
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
-
     }
 
     // 裏側
@@ -1611,10 +1802,7 @@ function buildModel_Disk_Flap() {
       let angle = 2 * Math.PI / N * i;
       let fv2 = new Array(4);
 
-      let line_geom = new THREE.Geometry();
-
       for(let k = 0; k < 4; k++) {
-
         fv2[k] = new Vec3d();
         // 回転させる
         fv2[k].z = faceV2[k].z  - centerY;
@@ -1624,19 +1812,22 @@ function buildModel_Disk_Flap() {
 
         geometry.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y ));
         exportObjStr += "v " + fv2[k].x + " " + (-fv2[k].z) + " " + fv2[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y));
+      }
 
-      }                    
-      line_geom.vertices.push( new THREE.Vector3(fv2[0].x,  -fv2[0].z, fv2[0].y));
+      for (let e of edges ) {
+        let si = (6 - e[0]) % 4;
+        let ei = (6 - e[1]) % 4;
+        let line_geom = new THREE.Geometry();
+        line_geom.vertices.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
+        line_geom.vertices.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));
+        group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+      }
 
       let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
       let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
       geometry.faces.push(face0);
       geometry.faces.push(face1);
       vIndex += 4;
-
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
-
     }
   }
 
@@ -1748,7 +1939,7 @@ function buildModel_Disk_Prism() {
     }
 
     // 水平線
-    if(bHideHline && j > 0 && j != vNum -2 && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * ANGLE_FLAT_DEG_EPS) continue;
+    if(bHideHline && j != vNum -2 && Vec2d.Angle(Vec2d.Sub(pLine[j], pLine[j+1]), Vec2d.Sub(pLine[j+1], pLine[j+2])) < Math.PI /180.0 * hideAngleDeg) continue;
 
     	let type;
       let rType;
@@ -1844,56 +2035,68 @@ function buildModel_Disk_Prism() {
     vVec.push(pD);
     vVec.push(pB);
   }
-
-  let tmpFace = [];
   
   for(let j = 0; j < vNum-1; j++) {
+    let tmpFace = [];
     for(let i = 0; i < vNumPerLayer - 1; i++) {
       let v = new Array(4);
-      for(let k = 0; k < 4; k++) {
-        v[k] = new Vec3d();
-      }
                 
-      v[0].set(vVec[j*vNumPerLayer+i]);
-      v[1].set(vVec[j*vNumPerLayer+i+vNumPerLayer]);
-      v[2].set(vVec[j*vNumPerLayer+i+1+vNumPerLayer]);
-      v[3].set(vVec[j*vNumPerLayer+i+1]);
+      v[0] = new Vec3d(vVec[j*vNumPerLayer+i]);
+      v[1] = new Vec3d(vVec[j*vNumPerLayer+i+vNumPerLayer]);
+      v[2] = new Vec3d(vVec[j*vNumPerLayer+i+1+vNumPerLayer]);
+      v[3] = new Vec3d(vVec[j*vNumPerLayer+i+1]);
                 
       tmpFace.push(v);
     }
-  }
-        
-  for(let vs of tmpFace) {
-    for(let i = 0; i < N; i++) {
-      let angle = 2 * Math.PI / N * i;
-      let fv = new Array(4);
 
-      let line_geom = new THREE.Geometry();
+    // 描画するエッジ
+    let edges = [[0,1], [2,3]]; // 左右
 
-      for(let k = 0; k < 4; k++) {
-        fv[k] = new Vec3d();
-        // 回転させる
-        fv[k].z = vs[k].z - centerY;
-        fv[k].x = vs[k].x * Math.cos(angle) - vs[k].y * Math.sin(angle);
-        fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
-        fv[k].scale(modelScale);
-        geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
-        exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
-        line_geom.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y));
-      }                    
-      //faces.add(fv);
-      line_geom.vertices.push( new THREE.Vector3(fv[0].x,  -fv[0].z, fv[0].y));
-
-      let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-      let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
-      vIndex += 4;
-
-      group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+    if( j != 0 ) {
+      let bHideH = (bHideHline && Vec2d.Angle(Vec2d.Sub(pLine[j-1], pLine[j]), Vec2d.Sub(pLine[j], pLine[j+1])) < Math.PI /180.0 * hideAngleDeg);
+      if(!bHideH) {
+        edges.push([3,0]);
+      }
     }
-  }   
+
+    if(j == pLine.length -2) {
+      edges.push([1,2]); // 下端
+    }  
+        
+    for(let vs of tmpFace) {
+      for(let i = 0; i < N; i++) {
+        let angle = 2 * Math.PI / N * i;
+        let fv = new Array(4);
+
+        for(let k = 0; k < 4; k++) {
+          fv[k] = new Vec3d();
+          // 回転させる
+          fv[k].z = vs[k].z - centerY;
+          fv[k].x = vs[k].x * Math.cos(angle) - vs[k].y * Math.sin(angle);
+          fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
+          fv[k].scale(modelScale);
+          geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+          exportObjStr += "v " + fv[k].x + " " + (-fv[k].z) + " " + fv[k].y + "\n";
+        }                    
+
+        for (let e of edges ) {
+            let si = e[0];
+            let ei = e[1];
+            let line_geom = new THREE.Geometry();
+            line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+            line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
+            group.add(new THREE.Line(line_geom, new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 })));        
+        }      
+
+        let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
+        let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
+
+        geometry.faces.push(face0);
+        geometry.faces.push(face1);
+        vIndex += 4;
+      }
+    }    
+  }
 
   vIndex = 1;
   for (let i = 0; i < geometry.faces.length/2; i++) {
@@ -1924,7 +2127,6 @@ function buildModel() {
     case MODEL_TYPE_PRISM_CYLINDER:  buildModel_Cylindrical_Prism(); break; 
     case MODEL_TYPE_FLAP_DISK:  buildModel_Disk_Flap(); break; 
     case MODEL_TYPE_PRISM_DISK:  buildModel_Disk_Prism(); break; 
-
   }
 
   group.rotation.y = rotateY;
@@ -2041,10 +2243,6 @@ function cpCanvas_draw() {
 
   ctx.strokeStyle = COLOR_PLINE;
   ctx.fillStyle = COLOR_POINT;
-  
-  //ctx.beginPath();
-	//	ctx.arc(0,0, POINT_SIZE, 0, Math.PI * 2, true);
-  // ctx.fill();
 
   let cpCenter_x = (cpMinCoordinate.x + cpMaxCoordinate.x)/2; 
   let cpCenter_y = (cpMinCoordinate.y + cpMaxCoordinate.y)/2; 
@@ -2059,9 +2257,9 @@ function cpCanvas_draw() {
 
   for (let i = 0; i < cpEdges.length; i++) {
     switch(cpEdges[i].type) {
-      case EDGE_TYPE_BORDER: ctx.strokeStyle = 'rgb(0,0,0)'; break;
+      case EDGE_TYPE_BORDER:   ctx.strokeStyle = 'rgb(0,0,0)'; break;
       case EDGE_TYPE_MOUNTAIN: ctx.strokeStyle = 'rgb(255,0,0)'; break;
-      case EDGE_TYPE_VALLEY: ctx.strokeStyle = 'rgb(0,0,255)'; break;
+      case EDGE_TYPE_VALLEY:   ctx.strokeStyle = 'rgb(0,0,255)'; break;
     }
 	  ctx.beginPath();
     ctx.moveTo(cpEdges[i].sp.x, cpEdges[i].sp.y)
@@ -2086,8 +2284,7 @@ function cpCanvas_onMouseMove(e) {
   let mouseX = e.clientX - rect.left;
   let mouseY = e.clientY - rect.top;
 
-	if( e.which == 1 || e.which == 3) { // left of right
-	
+	if( e.which == 1 || e.which == 3) { // left or right
     cpCanvas_transVec.x += (mouseX - cpCanvas_preMouseX);
     cpCanvas_transVec.y += (mouseY - cpCanvas_preMouseY);
 		
@@ -2164,7 +2361,6 @@ function export_data() {
   console.log(url);
   window.URL.revokeObjectURL(url);
   document.getElementById("export_data_type").value = "-1";
-
 }
 
 function exportDXF(edges) {
