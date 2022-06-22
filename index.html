@@ -54,14 +54,12 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-color: black;
     }
 
     .canvas3 {
       position: absolute;
       width: 100%;
       height: 100%;
-      background-color: red;
     }
 
     .menu {
@@ -284,6 +282,12 @@
           </div>
           <br>
           <br>
+          <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="ck_Animation" 
+              onclick="buttonPressed('animation');">
+            <label class="custom-control-label" for="ck_Animation">Fold-Unfold Animation</label>
+          </div>
+          <br>
 
           <div>
             <input class="btn btn-danger btn-sm" type="button" value="Clear"
@@ -383,7 +387,7 @@ function outsideClose(e) {
 <script src="orirevo_util.js"></script>
 
 <script>
-document.getElementById('last_update').innerHTML = "Last update June 13 2022";
+document.getElementById('last_update').innerHTML = "Last update June 22 2022";
 
 const COLOR_GRID = 'rgb(200, 200, 200)';
 const COLOR_AXIS = 'rgb(0, 0, 0)';
@@ -599,8 +603,20 @@ function push_undoHistory() {
   undoHistory.push(pLineCopy);
 }
 
+let morphParams = {
+  ratioInt : 0,
+  ratioDiff : 5,
+  timer : null,
+  pLineBkup : null,
+  intervalMS : 100,
+}
+
 function buttonPressed(s) {
   if ( s == 'clear') {
+    if (document.getElementById("ck_Animation").checked) {
+      document.getElementById("ck_Animation").checked = false;
+      stopAnimation();
+    }
     undoHistory = [];
     pLine = [];
     pLineChanged = true;
@@ -609,20 +625,29 @@ function buttonPressed(s) {
     cpEdges = [];
     cpCanvas_draw();
     document.getElementById('undo_smooth').disabled = true;
+
   } else if (s == 'grid') {
     bShowGrid = document.getElementById("ck_grid").checked;      
     mainCanvas_draw();
+
   } else if (s == 'grid_dec' && bShowGrid) {
     if (gridDivNum > 2) {
       gridDivNum /= 2;
       mainCanvas_draw();
     }
+
   } else if (s == 'grid_inc' && bShowGrid) {
     if (gridDivNum < 256) {
       gridDivNum *= 2;
       mainCanvas_draw();
     }
+
   } else if (s == 'smooth') {
+    if (document.getElementById("ck_Animation").checked) {
+      document.getElementById("ck_Animation").checked = false;
+      stopAnimation();
+    }
+
     push_undoHistory();
     document.getElementById('undo_smooth').disabled = false;
 
@@ -640,11 +665,13 @@ function buttonPressed(s) {
     // モデルの生成と展開図の生成を同時に行うので、このようになっている
     pLineChanged = true;
     mainCanvas_draw();
+
   } else if (s == 'draw_glue_area') {
     bDrawGlueArea = document.getElementById("ck_glueArea").checked;    
     // モデルの生成と展開図の生成を同時に行うので、このようになっている
     pLineChanged = true;
     mainCanvas_draw();
+
   } else if (s == 'undo') {
     if (undoHistory.length != 0) {
       pLine = undoHistory.pop();
@@ -655,7 +682,53 @@ function buttonPressed(s) {
         document.getElementById('undo_smooth').disabled = true;
       }
     }
+
+  } else if(s == 'animation') {
+    if (document.getElementById("ck_Animation").checked) {   
+      morphParams.pLineBkup = new Array();
+      for (let p of pLine) morphParams.pLineBkup.push(new Vec2d(p));
+      morphParams.timer = setInterval(morphAnimation, morphParams.intervalMS);
+    } else {
+      if(morphParams.timer != null) {
+        stopAnimation();
+      }
+    }
   }
+}
+
+function stopAnimation() {
+  clearInterval(morphParams.timer);
+  pLine = morphParams.pLineBkup;
+  pLineChanged = true;
+  mainCanvas_draw();
+  morphParams.ratioInt = 0;
+}
+
+function morphAnimation() {
+  morphParams.ratioInt += morphParams.ratioDiff;
+  if ( morphParams.ratioDiff > 0 ) {
+    if(morphParams.ratioInt > 130) {
+      morphParams.ratioInt = 130;
+      morphParams.ratioDiff *= -1;
+    }
+  } else {
+    if(morphParams.ratioInt < -30) {
+      morphParams.ratioInt = -30;
+      morphParams.ratioDiff *= -1;
+    }
+  }
+
+  if (morphParams.ratioInt < 0 || morphParams.ratioInt > 100) return;
+
+  pLine = new Array();
+  for (let p of morphParams.pLineBkup) {
+    pLine.push(new Vec2d(p));
+  }
+  
+  morph(morphParams.ratioInt / 100);
+
+  pLineChanged = true;
+  mainCanvas_draw();
 }
 
 function modelTypeChange(type) {
@@ -2289,6 +2362,11 @@ function exportOrirevo() {
 }
 
 function export_data() {
+  if (document.getElementById("ck_Animation").checked) {
+      document.getElementById("ck_Animation").checked = false;
+      stopAnimation();
+  }
+
   if (pLine.length < 2) {
     document.getElementById("export_data_type").value = "-1";
     return;
@@ -2445,6 +2523,154 @@ d="M ${sx} ${sy} L ${ex} ${ey} "/>
   txt += `</g></svg>`;
 
   return txt;
+}
+
+class Rod {
+	length;
+	dAngle; // 単位時間当たりの角度の変化
+	angle; // 現在の角度 // 1つまえのロッドとの成す角
+	sp; // 参照
+	ep; // 参照
+	
+	originalPositionSp;	
+	dv; // 最初の点のみに関係する 移動量  
+
+  constructor() { }
+}
+
+function morph(ratio) {
+  ratio = Math.max(ratio, 0);
+  ratio = Math.min(ratio, 1);
+  let bCylindrical = (modelType == MODEL_TYPE_FLAP_CYLINDER || modelType == MODEL_TYPE_PRISM_CYLINDER);    
+      
+  let sy = pLine[0].y;
+  let ey = pLine[pLine.length - 1].y;
+
+  // y 軸方向の中央をゼロにあわせる
+  let min_y = max_y = sy;
+
+  for (let v of pLine) {
+    max_y = Math.max(max_y, v.y);
+    min_y = Math.min(min_y, v.y);
+  }
+       
+  let centerY = (min_y + max_y) / 2;
+  for (let v of pLine) {
+    v.y -= centerY;
+  }
+        
+  if(sy > ey) {
+    //並びを反転する
+    pLine.reverse();
+  }
+       
+  rods = [];
+  STEP_NUM = 1;
+
+  // rod構築
+  let total_rod_length = 0;
+  let max_x = 0;
+  
+  for (let i = 0; i < pLine.length - 1; i++) {
+    let rod = new Rod();
+    rods.push(rod);
+    let p0 = pLine[i];
+    let p1 = pLine[i+1];
+    rod.sp = p0;
+    rod.ep = p1;
+    rod.originalPositionSp = new Vec2d(p0);
+    let vec_p0_p1 = new Vec2d(p1.x - p0.x, p1.y - p0.y);
+    
+    max_x = Math.max(max_x,  Math.abs(p0.x));
+    max_x = Math.max(max_x,  Math.abs(p1.x));
+ 
+    let goalAngle;
+    if(i == 0) { 
+      goalAngle = bCylindrical ? Math.PI / 2 : 0; 
+    } else { 
+      let pre_p = pLine[i-1];
+      let vec_pre_p0 = new Vec2d(p0.x - pre_p.x, p0.y - pre_p.y);
+      goalAngle = Math.atan2(vec_pre_p0.y, vec_pre_p0.x); // goal angle
+    }
+ 
+    rod.length = vec_p0_p1.length();
+    total_rod_length += rod.length;
+    let thisAngle = Math.atan2(vec_p0_p1.y, vec_p0_p1.x);
+           
+    // 角度による場合分け
+    let diffAngle;
+    if(Math.abs(goalAngle - thisAngle) < Math.PI) { 
+      diffAngle = goalAngle - thisAngle; 
+    } else if(thisAngle - goalAngle > Math.PI) { 
+      diffAngle = goalAngle + 2*Math.PI - thisAngle; 
+    } else { 
+      diffAngle = goalAngle - 2*Math.PI - thisAngle; 
+    }
+           
+    if(i == 0 ){
+      rod.angle = Math.atan2(vec_p0_p1.y, vec_p0_p1.x);
+      rod.dAngle = diffAngle / STEP_NUM;
+    } else {
+      rod.angle = diffAngle;
+      rod.dAngle = -diffAngle / STEP_NUM;        	
+    }
+  }
+         
+  rods[0].dv = bCylindrical ? new Vec2d((max_x - rods[0].sp.x) / STEP_NUM, (-total_rod_length / 2 - rods[0].sp.y) / STEP_NUM): new Vec2d();
+       
+  morphMaxX = max_x;
+
+
+  // それぞれの長さ、目標角度が定まったので、それに従って、頂点位置を更新する
+  max_x = 0;
+  min_y = max_y = rods[0].originalPositionSp.y;  	
+  for(let i = 0; i < rods.length; i++) {
+    let rod = rods[i];
+        	
+    // 角度の更新 
+    let angle = rod.angle + ratio * rod.dAngle;
+        	
+    if(i == 0) {
+    	rod.sp.x = rod.originalPositionSp.x + ratio * rod.dv.x;
+    	rod.sp.y = rod.originalPositionSp.y + ratio * rod.dv.y;
+    	rod.ep.x = rod.sp.x + rod.length * Math.cos(angle);
+    	rod.ep.y = rod.sp.y + rod.length * Math.sin(angle);
+        		
+    	max_x = Math.max(max_x, rod.ep.x);
+    	max_y = Math.max(max_y, rod.ep.y);
+    	max_y = Math.max(max_y, rod.sp.y);
+    	min_y = Math.min(min_y, rod.ep.y);
+    	min_y = Math.min(min_y, rod.sp.y);
+    	continue;
+    }
+        	
+    // 先の頂点の位置を、根元の頂点の位置、1つ前のロッドの角度、現在のロッドの長さ、角度で更新
+    let preRod = rods[i - 1];
+    
+    // 1つ前のロッドの絶対角度
+    let preRodAngle = Math.atan2(preRod.ep.y - preRod.sp.y, preRod.ep.x - preRod.sp.x);
+    
+    // 更新後の現在のロッドの絶対角度
+    let ang = -angle + preRodAngle;
+    rod.ep.x = rod.sp.x + rod.length * Math.cos(ang);
+    rod.ep.y = rod.sp.y + rod.length * Math.sin(ang);
+    max_x = Math.max(max_x, rod.ep.x);
+    max_y = Math.max(max_y, rod.ep.y);
+    min_y = Math.min(min_y, rod.ep.y);
+  }        	
+        
+  // もしも max_x がmorphMaxXを超えてしまっていたら、紙が大きくなるということなので、超えないように元に戻す
+  if(morphMaxX < max_x && bCylindrical) {
+    let diff = max_x - morphMaxX;
+    for(let v of pLine) {
+      v.x -= diff;
+    }
+  }
+        
+  centerY = (min_y + max_y) / 2;
+  for(let v of pLine) {
+ 		v.y -= centerY;
+ 	}
 }
 
   </script>
