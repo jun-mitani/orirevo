@@ -37,6 +37,11 @@ class Vec2d {
     this.y = _x * Math.sin(angleRad) + _y * Math.cos(angleRad);
   }
 
+  length() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+
   static Cross(u, v) {
     return u.x * v.y - u.y * v.x;
   }
@@ -122,9 +127,8 @@ class Vec3d {
   static Sub(v0, v1) {
     return new Vec3d(v0.x - v1.x, v0.y - v1.y, v0.z - v1.z);
   }
-
-
 }
+
 
 function cpScale(edges, scale) {
   for (let edge of edges) {
@@ -165,13 +169,13 @@ function getDistance(x0, y0, x1, y1) {
 function setData_Sphere(p, canvas_size) {
   let r = canvas_size * 0.4;
   let divNum = 24;
-  p.push(new Vec2d(-r/4,r * 1.01));
+  p.push(new Vec2d(-r/4, -r * 1.01));
   for(let i = 1; i <divNum; i++) {
       let x = Math.sin(i * Math.PI/divNum) * r;
       let y = Math.cos(i * Math.PI/divNum) * r;
-      p.push(new Vec2d(x,y));
+      p.push(new Vec2d(x,-y));
   }
-  p.push(new Vec2d(-r/4,-r * 1.01));
+  p.push(new Vec2d(-r/4,r * 1.01));
 }
 
 function setData_Egg(p, canvas_size) {
