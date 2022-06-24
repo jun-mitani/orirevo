@@ -85,7 +85,7 @@ class Vec3d {
       this.x = x;
       this.y = y;
       this.z = z;
-      }
+    }
   }
 
   length() {
@@ -116,7 +116,18 @@ class Vec3d {
       this.y * v.z - this.z * v.y,
       this.z * v.x - this.x * v.z,
       this.x * v.y - this.y * v.x
-    )
+    );
+  }
+
+  static Cross(v0, v1) {
+    let v = new Vec3d(
+      v0.y * v1.z - v0.z * v1.y,
+      v0.z * v1.x - v0.x * v1.z,
+      v0.x * v1.y - v0.y * v1.x
+    );
+
+    v.normalize;
+    return v;
   }
 
   setLen(l) {

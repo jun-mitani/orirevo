@@ -16,7 +16,7 @@
   
   <!-- https://www.avantui.com/ -->
   <script src="avantui.js"></script>
-
+ 
   <style>
     body {
       margin: 0;
@@ -124,7 +124,7 @@
   </style>
 </head>
 
-<body onresize="windowResized()">
+<body>
   <div class="box">
     <div name="header" class="header">
       ORI-REVO <span style="font-size:50%">(by <a href="https://mitani.cs.tsukuba.ac.jp/">Jun Mitani</a>, 2022)</span>
@@ -132,20 +132,19 @@
     <div class="box2">
       <div class="menu">
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="ck_grid" checked onclick="buttonPressed('grid');">
+            <input type="checkbox" class="custom-control-input" id="ck_grid" checked/>
             <label class="custom-control-label" for="ck_grid">Show Grid & Snap to Grid</label>
           </div>
           <label>&nbsp;&nbsp;&nbsp;Grid Interval</label>
-          <input class="btn btn-primary btn-sm" type="button" value="x 1/2" onclick="buttonPressed('grid_inc');" />
-          <input class="btn btn-primary btn-sm" type="button" value="x 2"
-            onclick="buttonPressed('grid_dec');" /><br><br>
+          <input class="btn btn-primary btn-sm" type="button" value="x 1/2" id="grid_inc" />
+          <input class="btn btn-primary btn-sm" type="button" value="x 2" id="grid_dec" /><br><br>
 
           <div class="form-group">
             <table>
               <tr>
                 <td width="50%"><label for="divNum">Division Number&nbsp;&nbsp;&nbsp;</label></td>
                 <td>
-                  <select class="custom-select custom-select-sm" id="divNum" onchange="divNumChange(this.value)">
+                  <select class="custom-select custom-select-sm" id="divNum">
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
@@ -171,14 +170,10 @@
           <div class="form-group">
             <label id="modelTypeName">Model Type</label><br>
 
-            <input type="radio" name="modelType" value="0" id="type_flap_cylinder" checked
-              onclick="modelTypeChange(0)"><label for="type_flap_cylinder"></label>
-            <input type="radio" name="modelType" value="1" id="type_prism_cylinder" onclick="modelTypeChange(1)"><label
-              for="type_prism_cylinder"></label>
-            <input type="radio" name="modelType" value="2" id="type_flap_disk" onclick="modelTypeChange(2)"><label
-              for="type_flap_disk"></label>
-            <input type="radio" name="modelType" value="3" id="type_prism_disk" onclick="modelTypeChange(3)"><label
-              for="type_prism_disk"></label>
+            <input type="radio" name="modelType" value="0" id="type_flap_cylinder" checked ><label for="type_flap_cylinder"></label>
+            <input type="radio" name="modelType" value="1" id="type_prism_cylinder"><label for="type_prism_cylinder"></label>
+            <input type="radio" name="modelType" value="2" id="type_flap_disk"><label for="type_flap_disk"></label>
+            <input type="radio" name="modelType" value="3" id="type_prism_disk"><label for="type_prism_disk"></label>
           </div>
           <style>
             input[type=radio]+label:before {
@@ -221,36 +216,30 @@
           </style>
           <div id="div_flapsize">
             <label for="flapSizeRange">Flap Size</label>
-            <input id="flapSizeRange" type="range" min="1" max="400" step="1" value="20"
-              oninput="flapSizeChange(this.value)" onchange="flapSizeChange(this.value)">
+            <input id="flapSizeRange" type="range" min="1" max="400" step="1" value="20"/>
             <span id="FlapSize">20</span><br><br>
           </div>
           <div id="div_grueArea">
             <div class="custom-control custom-switch">
-              <input type="checkbox" class="custom-control-input" id="ck_glueArea"
-                onclick="buttonPressed('draw_glue_area');">
+              <input type="checkbox" class="custom-control-input" id="ck_glueArea">
               <label class="custom-control-label" for="ck_glueArea">Draw Glueing Area</label>
             </div>
           </div>
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="ck_hideHline" checked
-              onclick="buttonPressed('hide_hline');">
+            <input type="checkbox" class="custom-control-input" id="ck_hideHline" checked />
             <label class="custom-control-label" for="ck_hideHline">Hide almoust flat edges</label>
           </div>
           <div id="div_hide_angle">
             <label for="hideAngleRange">&nbsp;&nbsp;&nbsp;Hide Angle (deg.)</label>
-            <input id="hideAngleRange" type="range" min="1" max="90" step="1" value="25"
-              oninput="hideAngleChange(this.value)" onchange="hideAngleChange(this.value)">
+            <input id="hideAngleRange" type="range" min="1" max="90" step="1" value="25"/>
             <span id="HideAngle">25</span><br><br>
           </div>
-          <input class="btn btn-primary btn-sm" type="button" value="Smooth"
-            onclick="buttonPressed('smooth');" />
-          <input class="btn btn-primary btn-sm" type="button" value="Undo Smooth" id ="undo_smooth"
-            onclick="buttonPressed('undo');" disabled/><br>
+          <input class="btn btn-primary btn-sm" type="button" value="Smooth" id="smooth_btn"/>
+          <input class="btn btn-primary btn-sm" type="button" value="Undo Smooth" id ="undo_smooth" disabled/><br>
           <br>
           <table width="100%"><tr><td width="50%">
           <div class="form-group">
-            <select class="custom-select" id="export_data_type" onchange="export_data()">
+            <select class="custom-select" id="export_data_type">
               <option value="-1" selected>= Export Data =</option>
               <option value="dxf">Crease Pattern (.dxf)</option>
               <option value="svg">Crease Pattern (.svg)</option>
@@ -261,7 +250,7 @@
         </td><td>
 
           <div class="form-group">
-            <select class="custom-select" id="load_example" onchange="loadExampleData(this.value)">
+            <select class="custom-select" id="load_example">
               <option value="-1" selected>= Load Example Data =</option>
               <option value="sphere8">Sphere with 8 Flaps</option>
               <option value="sphere16">Sphere with 16 Flaps</option>
@@ -277,21 +266,19 @@
         </td>
         </tr></table>
           <div class="custom-file">
-            <input type="file" class="custom-file-input" id="orirevo_file" onChange="file_load(this)">
+            <input type="file" class="custom-file-input" id="orirevo_file"/>
             <label class="custom-file-label" for="orirevo_file">= Load .orirevo File =</label>
           </div>
           <br>
           <br>
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="ck_Animation" 
-              onclick="buttonPressed('animation');">
+            <input type="checkbox" class="custom-control-input" id="ck_Animation" />
             <label class="custom-control-label" for="ck_Animation">Fold-Unfold Animation</label>
           </div>
           <br>
 
           <div>
-            <input class="btn btn-danger btn-sm" type="button" value="Clear"
-              onclick="buttonPressed('clear');" /><br><br>
+            <input class="btn btn-danger btn-sm" type="button" value="Clear" id="clear_btn"/><br><br>
           </div>             
 
           <!-- ref https://tcd-theme.com/2021/08/javascript-modalwindow.html -->
@@ -317,6 +304,7 @@
                   <li>This software is released under the MIT license on 8 June 2022.</li>
                   <li>The source code is placed on <a href="https://github.com/jun-mitani/orirevo" target="_blank">the GitHub repository</a>.</li>
                   <li>The algorithm used for generating 3D models is from the following paper:<br><span style="font-style : italic">Jun Mitani, "A Design Method for 3D Origami Based on Rotational Sweep", Computer-Aided Design and Applications, Vol.6, No.1, pp.69-79, 2009.</span><a href="http://mitani.cs.tsukuba.ac.jp/dl/CAD_2009_3d_origami_based_on_rotational_sweep_mitani.pdf">(PDF)</a></it></li>
+                  <li>This software has been tested on Chrome 103.</li>
                   <li>You are free to use this software for any purpose, including personal use, workshop use, and commercial product development. 
                     I would be very happy if you respect the developer, cite the software appropriately, and report on your use cases to mitani@cs.tsukuba.ac.jp</li>
                   <li>The books written by the author of this software:<br><br>
@@ -383,11 +371,21 @@ function outsideClose(e) {
     </div>
   </div>
 
-<script src="three.min.js"></script>
 <script src="orirevo_util.js"></script>
 
-<script>
-document.getElementById('last_update').innerHTML = "Last update June 22 2022";
+<script type="importmap">
+  {
+    "imports": {
+      "three": "./three/three.module.js"
+    }
+  }
+</script>
+
+<script type="module">
+
+import * as THREE from 'three';
+
+document.getElementById('last_update').innerHTML = "Last update June 24 2022";
 
 const COLOR_GRID = 'rgb(200, 200, 200)';
 const COLOR_AXIS = 'rgb(0, 0, 0)';
@@ -417,8 +415,33 @@ let modelDivNum = 6;
 let undoHistory = [];
 let hideAngleDeg = 25;
 
+document.body.onresize = function() { windowResized(); }
+document.getElementById("divNum").onchange = function() { divNumChange(document.getElementById("divNum").value);}
+document.getElementById("flapSizeRange").onchange = function() { flapSizeChange(document.getElementById("flapSizeRange").value);}
+document.getElementById("flapSizeRange").oninput = function() { flapSizeChange(document.getElementById("flapSizeRange").value);}
+document.getElementById("hideAngleRange").onchange = function() { hideAngleChange(document.getElementById("hideAngleRange").value);}
+document.getElementById("hideAngleRange").oninput = function() { hideAngleChange(document.getElementById("hideAngleRange").value);}
+document.getElementById("export_data_type").onchange = function() { export_data();}
+document.getElementById("load_example").onchange = function() { loadExampleData(document.getElementById("load_example").value);}
+document.getElementById("orirevo_file").onchange = function() { file_load(document.getElementById("orirevo_file"));}
+document.getElementById("ck_Animation").onclick = function() { buttonPressed("animation");}
+document.getElementById("smooth_btn").onclick = function() { buttonPressed("smooth");}
+document.getElementById("ck_grid").onclick = function() { buttonPressed("grid");}
+document.getElementById("grid_inc").onclick = function() { buttonPressed("grid_inc");}
+document.getElementById("grid_dec").onclick = function() { buttonPressed("grid_dec");}
+document.getElementById("type_flap_cylinder").onclick = function() { modelTypeChange(MODEL_TYPE_FLAP_CYLINDER);}
+document.getElementById("type_prism_cylinder").onclick = function() { modelTypeChange(MODEL_TYPE_PRISM_CYLINDER);}
+document.getElementById("type_flap_disk").onclick = function() { modelTypeChange(MODEL_TYPE_FLAP_DISK);}
+document.getElementById("type_prism_disk").onclick = function() { modelTypeChange(MODEL_TYPE_PRISM_DISK);}
+document.getElementById("ck_glueArea").onclick = function() { buttonPressed('draw_glue_area');}
+document.getElementById("ck_hideHline").onclick = function() { buttonPressed('hide_hline');}
+document.getElementById("undo_smooth").onclick = function() { buttonPressed('undo');}
+document.getElementById("clear_btn").onclick = function() { buttonPressed('clear');}
+
+
+
 function file_loaded(txt) {
-  data = JSON.parse(txt);
+  let data = JSON.parse(txt);
 
   if (data.application != 'orirevo') {
     console.log("not orirevo data");
@@ -611,7 +634,7 @@ let morphParams = {
   intervalMS : 100,
 }
 
-function buttonPressed(s) {
+export function buttonPressed(s) {
   if ( s == 'clear') {
     if (document.getElementById("ck_Animation").checked) {
       document.getElementById("ck_Animation").checked = false;
@@ -881,8 +904,8 @@ function mainCanvas_onMouseDown(e) {
   let rect = mainCanvas.getBoundingClientRect();
   let mouseX = e.clientX - rect.left;
   let mouseY = e.clientY - rect.top;
-  preMouseX = mouseX;
-  preMouseY = mouseY;
+  let preMouseX = mouseX;
+  let preMouseY = mouseY;
   mainCanvas_pressedMouseX = preMouseX;
   mainCanvas_pressedMouseY = preMouseY;
   draggingPointIndex = -1;
@@ -1004,11 +1027,9 @@ function mainCanvas_onMouseMove(e) {
   let mouseY = e.clientY - rect.top;
 
 	if( e.which == 3){ // right	
-    mainCanvas_transVec.x += (mouseX - preMouseX);
-    mainCanvas_transVec.y += (mouseY - preMouseY);
+    mainCanvas_transVec.x += (mouseX - mainCanvas_preMouseX);
+    mainCanvas_transVec.y += (mouseY - mainCanvas_preMouseY);
 		
-		preMouseX = mouseX;
-		preMouseY = mouseY;
     mainCanvas_draw();
 
 	} else if (e.which == 1) {
@@ -1039,6 +1060,9 @@ function mainCanvas_onMouseMove(e) {
     mainCanvas_draw();
 
   }
+  mainCanvas_preMouseX = mouseX;
+  mainCanvas_preMouseY = mouseY;
+
   e.preventDefault();
 }
 
@@ -1146,7 +1170,7 @@ function modelScreen_init() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function buildModel_Cylindrical_Flap() {
-  geometry = new THREE.Geometry();
+  geometry = new THREE.BufferGeometry();
   let N = modelDivNum;
   let flapMargin = flapSize * 0.01;
   let maxX = Math.abs(pLine[0].x);
@@ -1258,6 +1282,11 @@ function buildModel_Cylindrical_Flap() {
   // generate 3D model
   let vIndex = 0;
   let modelScale = 0.2;
+  let vertices = [];
+  let indices = [];
+  let normals = [];
+  let points_for_line = [];
+
   for(let j = 0; j < pLine.length - 1; j++) {
 
     let v0 = pLine[j];
@@ -1308,10 +1337,10 @@ function buildModel_Cylindrical_Flap() {
     if(j == pLine.length -2) {
       edges.push([2,3]); // 下端
     }
-    
+
     for(let i = 0; i < N; i++) {
       let angle = 2 * Math.PI / N * i;
-      fv = new Array(4);
+      let fv = new Array(4);
  
       for(let k = 0; k < 4; k++) {
         fv[k] = new Vec3d();
@@ -1321,30 +1350,29 @@ function buildModel_Cylindrical_Flap() {
         fv[k].y = faceV[k].x * Math.sin(angle) + faceV[k].y * Math.cos(angle);
         fv[k].scale(modelScale);
 
-        geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+        vertices.push(fv[k].x,  -fv[k].z, fv[k].y );
       }
+
+      let nomalVec = Vec3d.Cross(Vec3d.Sub(fv[1], fv[0]), Vec3d.Sub(fv[2], fv[0]));
+      for(let k = 0; k < 4; k++)
+        normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
       for (let e of edges ) {
         let si = e[0];
         let ei = e[1];
-        let line_geom = new THREE.Geometry();
-        line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
-        line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
-        group.add(new THREE.Line(line_geom, LineMat));       
+        points_for_line.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+        points_for_line.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
       }
 
-      let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-      let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
+      indices.push( vIndex, vIndex + 1, vIndex + 2 );
+      indices.push( vIndex, vIndex + 2, vIndex + 3 );
       vIndex += 4;
-
     }
 
     // 裏側
     for(let i = 0; i < N; i++) {
       let angle = 2 * Math.PI / N * i;
-      fv2 = new Array(4);
+      let fv2 = new Array(4);
         
       for(let k = 0; k < 4; k++) {
         fv2[k] = new Vec3d();
@@ -1354,30 +1382,31 @@ function buildModel_Cylindrical_Flap() {
         fv2[k].y = faceV2[k].x * Math.sin(angle) + faceV2[k].y * Math.cos(angle);
         fv2[k].scale(modelScale);
 
-        geometry.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y ));
+        vertices.push(fv2[k].x,  -fv2[k].z, fv2[k].y );
       }
+      let nomalVec = Vec3d.Cross(Vec3d.Sub(fv2[1], fv2[0]), Vec3d.Sub(fv2[2], fv2[0]));
+      for(let k = 0; k < 4; k++)
+        normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
       for (let e of edges ) {
         let si = e[0];
         let ei = e[1];
-        let line_geom = new THREE.Geometry();
-        line_geom.vertices.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
-        line_geom.vertices.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));
-        group.add(new THREE.Line(line_geom, LineMat));        
-      }
+        points_for_line.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
+        points_for_line.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));
 
-	    let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-	    let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
+      }
+      indices.push( vIndex, vIndex + 1, vIndex + 2 );
+      indices.push( vIndex, vIndex + 2, vIndex + 3 );
+
       vIndex += 4;
     }
   }
+  group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints( points_for_line ), LineMat));       
 
-  geometry.computeFaceNormals();
-  let mesh = new THREE.Mesh(geometry, material);
-  group.add(mesh);    
-
+  geometry.setIndex( indices );
+  geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+  geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+  group.add(new THREE.Mesh(geometry, material));    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1386,7 +1415,7 @@ function buildModel_Cylindrical_Flap() {
 
 function buildModel_Cylindrical_Prism() {
   let vNum = pLine.length;
-  geometry = new THREE.Geometry();
+  geometry = new THREE.BufferGeometry();
   let N = modelDivNum;
   let flapMargin = flapSize * 0.01;
   let maxX = Math.abs(pLine[0].x);
@@ -1516,6 +1545,10 @@ function buildModel_Cylindrical_Prism() {
   // generate 3D model
   let vIndex = 0;
   let modelScale = 0.2;
+  let vertices = [];
+  let indices = [];
+  let normals = [];
+  let points_for_line = [];
 
   // 各線分の長さを格納
   let l = new Array(vNum-1);
@@ -1595,31 +1628,32 @@ function buildModel_Cylindrical_Prism() {
           fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
 
           fv[k].scale(modelScale);
-          geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+          vertices.push(fv[k].x,  -fv[k].z, fv[k].y );
         }                    
+        let nomalVec = Vec3d.Cross(Vec3d.Sub(fv[1], fv[0]), Vec3d.Sub(fv[2], fv[0]));
+        for(let k = 0; k < 4; k++)
+          normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
         for (let e of edges ) {
           let si = e[0];
           let ei = e[1];
-          let line_geom = new THREE.Geometry();
-          line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
-          line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
-          group.add(new THREE.Line(line_geom, LineMat));        
+          points_for_line.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+          points_for_line.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
         }
 
-        let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-        let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-        geometry.faces.push(face0);
-        geometry.faces.push(face1);
+        indices.push( vIndex, vIndex + 1, vIndex + 2 );
+        indices.push( vIndex, vIndex + 2, vIndex + 3 );
         vIndex += 4;
       }
     }
   }
 
-  geometry.computeFaceNormals();
-  let mesh = new THREE.Mesh(geometry, material);
-  group.add(mesh);    
+  group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints( points_for_line ), LineMat));       
 
+  geometry.setIndex( indices );
+  geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+  geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+  group.add(new THREE.Mesh(geometry, material));    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1627,7 +1661,7 @@ function buildModel_Cylindrical_Prism() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function buildModel_Disk_Flap() {
-  geometry = new THREE.Geometry();
+  geometry = new THREE.BufferGeometry();
   let N = modelDivNum;
   let vNum = pLine.length;
   let maxX = Math.abs(pLine[0].x);
@@ -1764,6 +1798,10 @@ function buildModel_Disk_Flap() {
   // generate 3D model
   let vIndex = 0;
   let modelScale = 0.2;
+  let vertices = [];
+  let indices = [];
+  let normals = [];
+  let points_for_line = [];
 
   let preP = new Vec2d(0,0);
   for(let j = 1; j < vNum; j++) {
@@ -1834,22 +1872,21 @@ function buildModel_Disk_Flap() {
         fv[k].y = faceV[k].x * Math.sin(angle) + faceV[k].y * Math.cos(angle);
         fv[k].scale(modelScale);
 
-        geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+        vertices.push(fv[k].x,  -fv[k].z, fv[k].y );
       }                    
+      let nomalVec = Vec3d.Cross(Vec3d.Sub(fv[2], fv[0]), Vec3d.Sub(fv[3], fv[0]));
+        for(let k = 0; k < 4; k++)
+          normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
       for (let e of edges ) {
         let si = e[0];
         let ei = e[1];
-        let line_geom = new THREE.Geometry();
-        line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
-        line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
-        group.add(new THREE.Line(line_geom, LineMat));        
+        points_for_line.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+        points_for_line.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
       }
 
-      let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-      let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
+      indices.push( vIndex, vIndex + 1, vIndex + 2 );
+      indices.push( vIndex, vIndex + 2, vIndex + 3 );
       vIndex += 4;
     }
 
@@ -1866,38 +1903,40 @@ function buildModel_Disk_Flap() {
         fv2[k].y = faceV2[k].x * Math.sin(angle) + faceV2[k].y * Math.cos(angle);
         fv2[k].scale(modelScale);
 
-        geometry.vertices.push( new THREE.Vector3(fv2[k].x,  -fv2[k].z, fv2[k].y ));
+          vertices.push(fv2[k].x,  -fv2[k].z, fv2[k].y );
       }
+      let nomalVec = Vec3d.Cross(Vec3d.Sub(fv2[2], fv2[0]), Vec3d.Sub(fv2[3], fv2[0]));
+        for(let k = 0; k < 4; k++)
+          normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
       for (let e of edges ) {
         let si = (6 - e[0]) % 4;
         let ei = (6 - e[1]) % 4;
-        let line_geom = new THREE.Geometry();
-        line_geom.vertices.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
-        line_geom.vertices.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));
-        group.add(new THREE.Line(line_geom, LineMat));        
+        points_for_line.push( new THREE.Vector3(fv2[si].x,  -fv2[si].z, fv2[si].y));
+        points_for_line.push( new THREE.Vector3(fv2[ei].x,  -fv2[ei].z, fv2[ei].y));       
       }
 
-      let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-      let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-      geometry.faces.push(face0);
-      geometry.faces.push(face1);
+      indices.push( vIndex, vIndex + 1, vIndex + 2 );
+      indices.push( vIndex, vIndex + 2, vIndex + 3 );
       vIndex += 4;
+
     }
   }
 
-  geometry.computeFaceNormals();
-  let mesh = new THREE.Mesh(geometry, material);
-  group.add(mesh);    
+  group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints( points_for_line ), LineMat));       
 
-}
+  geometry.setIndex( indices );
+  geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+  geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+  group.add(new THREE.Mesh(geometry, material));    
+ }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function buildModel_Disk_Prism() {
-  geometry = new THREE.Geometry();
+  geometry = new THREE.BufferGeometry();
   let N = modelDivNum;
   let vNum = pLine.length;
   let maxX = Math.abs(pLine[0].x);
@@ -2037,6 +2076,10 @@ function buildModel_Disk_Prism() {
   // generate 3D model
   let vIndex = 0;
   let modelScale = 0.2;
+  let vertices = [];
+  let indices = [];
+  let normals = [];
+  let points_for_line = [];
 
   // 立体形状構築
   let vVec = [];
@@ -2122,32 +2165,32 @@ function buildModel_Disk_Prism() {
           fv[k].x = vs[k].x * Math.cos(angle) - vs[k].y * Math.sin(angle);
           fv[k].y = vs[k].x * Math.sin(angle) + vs[k].y * Math.cos(angle);
           fv[k].scale(modelScale);
-          geometry.vertices.push( new THREE.Vector3(fv[k].x,  -fv[k].z, fv[k].y ));
+          vertices.push(fv[k].x,  -fv[k].z, fv[k].y );
         }                    
+        let nomalVec = Vec3d.Cross(Vec3d.Sub(fv[2], fv[1]), Vec3d.Sub(fv[3], fv[1]));
+        for(let k = 0; k < 4; k++)
+          normals.push(nomalVec.x,  -nomalVec.z, nomalVec.y );
 
         for (let e of edges ) {
             let si = e[0];
             let ei = e[1];
-            let line_geom = new THREE.Geometry();
-            line_geom.vertices.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
-            line_geom.vertices.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
-            group.add(new THREE.Line(line_geom, LineMat));        
+            points_for_line.push( new THREE.Vector3(fv[si].x,  -fv[si].z, fv[si].y));
+            points_for_line.push( new THREE.Vector3(fv[ei].x,  -fv[ei].z, fv[ei].y));
         }      
 
-        let face0 = new THREE.Face3(vIndex, vIndex + 1, vIndex + 2);
-        let face1 = new THREE.Face3(vIndex, vIndex + 2, vIndex + 3);
-
-        geometry.faces.push(face0);
-        geometry.faces.push(face1);
+        indices.push( vIndex, vIndex + 1, vIndex + 2 );
+        indices.push( vIndex, vIndex + 2, vIndex + 3 );
         vIndex += 4;
       }
     }    
   }
 
-  geometry.computeFaceNormals();
-  let mesh = new THREE.Mesh(geometry, material);
-  group.add(mesh);    
+  group.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints( points_for_line ), LineMat));       
 
+  geometry.setIndex( indices );
+  geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+  geometry.setAttribute( 'normal', new THREE.Float32BufferAttribute( normals, 3 ) );
+  group.add(new THREE.Mesh(geometry, material));    
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2244,7 +2287,6 @@ const cpCanvas = document.getElementById("canvas2");
 cpCanvas.width = wrapper3.getBoundingClientRect().width;
 cpCanvas.height = wrapper3.getBoundingClientRect().height;
 cpCanvas.addEventListener('mousedown',  cpCanvas_onMouseDown, false);
-//cpCanvas.addEventListener('mouseup',	cpCanvas_onMouseUp,	false);
 cpCanvas.addEventListener('mousemove',  cpCanvas_onMouseMove,  false);
 cpCanvas.addEventListener('mousewheel', cpCanvas_onMouseWheel, false);
 
@@ -2253,8 +2295,8 @@ let cpCanvas_preMouseY;
 let cpCanvas_pressedMouseX;
 let cpCanvas_pressedMouseY;
 
-cpCanvas_scale = 1;
-cpCanvas_transVec = new Vec2d(0, 0);
+let cpCanvas_scale = 1;
+let cpCanvas_transVec = new Vec2d(0, 0);
 
 // start
 cpCanvas_draw();
@@ -2408,14 +2450,16 @@ function export_data() {
 }
 
 function exportOBJ() {
+  let arr = geometry.getAttribute('position').array;
+  let len = arr.length;
   let output = "";
 
-  for ( let v of geometry.vertices) {
-    output += 'v ' + v.x + ' ' + v.y + ' ' + v.z + '\n';
+  for( let i = 0; i < len; i+=3) {
+    output += 'v ' + arr[i] + ' ' + arr[i+1] + ' ' + arr[i+2] + '\n';
   }
 
   let vIndex = 1;
-  for (let i = 0; i < geometry.faces.length / 2; i++) {
+  for (let i = 0; i < len / 3 / 4; i++) {
     output += "f " + vIndex + " " + (vIndex + 1) + " " + (vIndex + 2) + "\n";
     output += "f " + vIndex + " " + (vIndex + 2) + " " + (vIndex + 3) + "\n";
     vIndex += 4;
@@ -2547,7 +2591,8 @@ function morph(ratio) {
   let ey = pLine[pLine.length - 1].y;
 
   // y 軸方向の中央をゼロにあわせる
-  let min_y = max_y = sy;
+  let min_y = sy;
+  let max_y = sy;
 
   for (let v of pLine) {
     max_y = Math.max(max_y, v.y);
@@ -2564,8 +2609,8 @@ function morph(ratio) {
     pLine.reverse();
   }
        
-  rods = [];
-  STEP_NUM = 1;
+  let rods = [];
+  let STEP_NUM = 1;
 
   // rod構築
   let total_rod_length = 0;
@@ -2618,7 +2663,7 @@ function morph(ratio) {
          
   rods[0].dv = bCylindrical ? new Vec2d((max_x - rods[0].sp.x) / STEP_NUM, (-total_rod_length / 2 - rods[0].sp.y) / STEP_NUM): new Vec2d();
        
-  morphMaxX = max_x;
+  let morphMaxX = max_x;
 
 
   // それぞれの長さ、目標角度が定まったので、それに従って、頂点位置を更新する
