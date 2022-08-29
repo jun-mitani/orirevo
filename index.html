@@ -373,17 +373,9 @@ function outsideClose(e) {
 
 <script src="orirevo_util.js"></script>
 
-<script type="importmap">
-  {
-    "imports": {
-      "three": "./three/three.module.js"
-    }
-  }
-</script>
-
 <script type="module">
 
-import * as THREE from 'three';
+import * as THREE from './three/three.module.js';
 
 document.getElementById('last_update').innerHTML = "Last update June 24 2022";
 
@@ -601,12 +593,13 @@ mainCanvas.height = wrapper1.getBoundingClientRect().height;
 mainCanvas.addEventListener('mousedown',  mainCanvas_onMouseDown, false);
 mainCanvas.addEventListener('mouseup',	mainCanvas_onMouseUp,	false);
 mainCanvas.addEventListener('mousemove',  mainCanvas_onMouseMove,  false);
-mainCanvas.addEventListener('mousewheel', mainCanvas_onMouseWheel, false);
+mainCanvas.addEventListener('wheel', mainCanvas_onMouseWheel, false);
 
 let mainCanvas_preMouseX;
 let mainCanvas_preMouseY;
 let mainCanvas_pressedMouseX;
 let mainCanvas_pressedMouseY;
+let mainCanvas_pressedMouseButton;
 
 let mainCanvas_scale = 1;
 let mainCanvas_transVec = new Vec2d(0, 0);
@@ -908,9 +901,10 @@ function mainCanvas_onMouseDown(e) {
   let preMouseY = mouseY;
   mainCanvas_pressedMouseX = preMouseX;
   mainCanvas_pressedMouseY = preMouseY;
+  mainCanvas_pressedMouseButton = e.which;
   draggingPointIndex = -1;
 
-  if (e.which == 1) {
+  if (mainCanvas_pressedMouseButton == 1) {
     let px = (mouseX - mainCanvas.width/2) / mainCanvas_scale  - mainCanvas_transVec.x;
     let py = (mouseY - mainCanvas.height/2) / mainCanvas_scale - mainCanvas_transVec.y ;
 
@@ -959,9 +953,10 @@ function mainCanvas_onMouseUp(e) {
   pickCandidatePointIndex = -1;
 
   // add a point
-  if ( e.which == 1 ) {
+  if ( mainCanvas_pressedMouseButton == 1 ) {
     if(draggingPointIndex != -1) {
       mainCanvas_draw();
+      mainCanvas_pressedMouseButton = -1;
       return;
     }
 
@@ -979,6 +974,7 @@ function mainCanvas_onMouseUp(e) {
     if (pLine.length != 0) {
       let lastP = pLine[pLine.length - 1];
       if (getDistance(px, py, lastP.x, lastP.y) < 2) {
+        mainCanvas_pressedMouseButton = -1;
         return;
       }
     }
@@ -988,7 +984,7 @@ function mainCanvas_onMouseUp(e) {
     mainCanvas_draw();
 
   // right click : remove a point
-  } else if ( e.which == 3) {
+  } else if ( mainCanvas_pressedMouseButton == 3) {
     if ( Math.abs(mouseX - mainCanvas_pressedMouseX) > 3 || Math.abs(mouseY - mainCanvas_pressedMouseY) > 3 ) {
       return; // drag
     }
@@ -1018,6 +1014,7 @@ function mainCanvas_onMouseUp(e) {
     mainCanvas_draw();
   }
 
+  mainCanvas_pressedMouseButton = -1
   e.preventDefault();
 }
 
@@ -1026,13 +1023,13 @@ function mainCanvas_onMouseMove(e) {
   let mouseX = e.clientX - rect.left;
   let mouseY = e.clientY - rect.top;
 
-	if( e.which == 3){ // right	
+	if( mainCanvas_pressedMouseButton == 3){ // right	
     mainCanvas_transVec.x += (mouseX - mainCanvas_preMouseX);
     mainCanvas_transVec.y += (mouseY - mainCanvas_preMouseY);
 		
     mainCanvas_draw();
 
-	} else if (e.which == 1) {
+	} else if (mainCanvas_pressedMouseButton == 1) {
     if(draggingPointIndex != -1) {
       let px = (mouseX - mainCanvas.width/2) / mainCanvas_scale  - mainCanvas_transVec.x;
       let py = (mouseY - mainCanvas.height/2) / mainCanvas_scale - mainCanvas_transVec.y;
@@ -1096,6 +1093,7 @@ class CPEdge {
 
 let modelScreen_preMouseX = 0;
 let modelScreen_preMouseY = 0;
+let modelScreen_mouseButton;
 
 let camera, scene, renderer;
 let group;
@@ -1114,7 +1112,7 @@ let  container = document.getElementById("wrapper2");
   container.addEventListener('mousemove', onModelViewMouseMove, false);
   container.addEventListener('mouseup', onModelViewMouseUp, false);
   container.addEventListener('mousedown', onModelViewMouseDown, false);
-	container.addEventListener('mousewheel', onModelViewMouseWheel, false);
+	container.addEventListener('wheel', onModelViewMouseWheel, false);
       
 const LineMat = new THREE.LineBasicMaterial({ color: linecolor, linewidth: 1 });
 let geometry;
@@ -2235,14 +2233,15 @@ function onWindowResize3d() {
 
 function onModelViewMouseDown(e) {
   let rect = container.getBoundingClientRect();
-  if (e.which == 1 || e.which == 3) {
+  modelScreen_mouseButton = e.which;
+  if (modelScreen_mouseButton == 1 || modelScreen_mouseButton == 3) {
     modelScreen_preMouseX = e.clientX - rect.left;
     modelScreen_preMouseY = e.clientY - rect.top;
   }
 }
 
 function onModelViewMouseMove(e) {
-    if (e.which == 1 || e.which == 3) {
+    if (modelScreen_mouseButton == 1 || modelScreen_mouseButton == 3) {
       let rect = container.getBoundingClientRect();
       let px = e.clientX - rect.left;
       let py = e.clientY - rect.top;
@@ -2259,6 +2258,7 @@ function onModelViewMouseMove(e) {
   }
 
 function onModelViewMouseUp(e) {
+  modelScreen_mouseButton = -1;
 }
 
 function render() {
@@ -2287,13 +2287,15 @@ const cpCanvas = document.getElementById("canvas2");
 cpCanvas.width = wrapper3.getBoundingClientRect().width;
 cpCanvas.height = wrapper3.getBoundingClientRect().height;
 cpCanvas.addEventListener('mousedown',  cpCanvas_onMouseDown, false);
+cpCanvas.addEventListener('mouseup',  cpCanvas_onMouseUp, false);
 cpCanvas.addEventListener('mousemove',  cpCanvas_onMouseMove,  false);
-cpCanvas.addEventListener('mousewheel', cpCanvas_onMouseWheel, false);
+cpCanvas.addEventListener('wheel', cpCanvas_onMouseWheel, false);
 
 let cpCanvas_preMouseX;
 let cpCanvas_preMouseY;
 let cpCanvas_pressedMouseX;
 let cpCanvas_pressedMouseY;
+let cpCanvas_pressedMouseButton;
 
 let cpCanvas_scale = 1;
 let cpCanvas_transVec = new Vec2d(0, 0);
@@ -2357,6 +2359,7 @@ function cpCanvas_onMouseDown(e) {
   cpCanvas_preMouseY = mouseY;
   cpCanvas_pressedMouseX = cpCanvas_preMouseX;
   cpCanvas_pressedMouseY = cpCanvas_preMouseY;
+  cpCanvas_pressedMouseButton = e.which;
   e.preventDefault();
 }
 
@@ -2365,7 +2368,7 @@ function cpCanvas_onMouseMove(e) {
   let mouseX = e.clientX - rect.left;
   let mouseY = e.clientY - rect.top;
 
-	if( e.which == 1 || e.which == 3) { // left or right
+	if( cpCanvas_pressedMouseButton == 1 || cpCanvas_pressedMouseButton == 3) { // left or right
     cpCanvas_transVec.x += (mouseX - cpCanvas_preMouseX);
     cpCanvas_transVec.y += (mouseY - cpCanvas_preMouseY);
 		
@@ -2374,6 +2377,10 @@ function cpCanvas_onMouseMove(e) {
     cpCanvas_draw();
   }
   e.preventDefault();
+}
+
+function cpCanvas_onMouseUp(e) {
+  cpCanvas_pressedMouseButton = -1;
 }
 
 function cpCanvas_onMouseWheel(e) {
