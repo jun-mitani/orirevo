@@ -377,7 +377,7 @@ function outsideClose(e) {
 
 import * as THREE from './three/three.module.js';
 
-document.getElementById('last_update').innerHTML = "Last update Aug. 31 2022<br>First release Jun. 8 2022";
+document.getElementById('last_update').innerHTML = "Last update Jun. 7 2023<br>First release Jun. 8 2022";
 
 const COLOR_GRID = 'rgb(200, 200, 200)';
 const COLOR_AXIS = 'rgb(0, 0, 0)';
@@ -986,6 +986,7 @@ function mainCanvas_onMouseUp(e) {
   // right click : remove a point
   } else if ( mainCanvas_pressedMouseButton == 3) {
     if ( Math.abs(mouseX - mainCanvas_pressedMouseX) > 3 || Math.abs(mouseY - mainCanvas_pressedMouseY) > 3 ) {
+        mainCanvas_pressedMouseButton = -1;
       return; // drag
     }
 
